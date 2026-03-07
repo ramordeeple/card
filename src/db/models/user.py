@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, TYPE_CHECKING
 from datetime import datetime
 import uuid
 
@@ -11,6 +11,8 @@ from src.db.models.card import Card
 from src.db.session import Base
 from src.domain.enums.user_role import UserRole
 
+if TYPE_CHECKING:
+    from src.db.models.card import Card
 
 class User(Base):
     __tablename__ = 'users'
@@ -31,9 +33,7 @@ class User(Base):
         server_default=sqlalchemy.func.now()
     )
 
-    cards: Mapped[List['Card']] = relationship(
-        'Card', back_populates='owner'
-    )
+    cards: Mapped[List['Card']] = relationship('Card', back_populates='owner')
 
 
 

@@ -1,13 +1,17 @@
 import uuid
 from datetime import date
+from typing import TYPE_CHECKING
+
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy import ForeignKey, String, DateTime, Enum as sqlalchemy_enum
-from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import Mapped, relationship
 from sqlalchemy.testing.schema import mapped_column
 
 from src.db.session import Base
 from src.domain.enums.card_status import CardStatus
 
+if TYPE_CHECKING:
+    from src.db.models.user import User
 
 class Card(Base):
     __tablename__ = 'cards'
@@ -18,7 +22,7 @@ class Card(Base):
         default=uuid.uuid4
     )
     number_encrypted: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
-    owner_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('user.id'), nullable=False)
+    owner_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('user.id'), nullable=False, ondelete='RESTRICT')
     expiration_date: Mapped[date] = mapped_column(DateTime, nullable=False)
     status: Mapped[int] = mapped_column(
         sqlalchemy_enum(CardStatus),
@@ -26,3 +30,4 @@ class Card(Base):
         nullable=False
     )
 
+    owner: Mapped['User'] = relationship('User', back_populates='cards')
