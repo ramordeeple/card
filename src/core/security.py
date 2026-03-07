@@ -5,7 +5,7 @@ from passlib.context import CryptContext
 
 from src.core.config import settings
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
 def hash_password(password: str) -> str:
     return pwd_context.hash(password)
@@ -19,7 +19,7 @@ def create_access_token(subject: str, expires_delta: datetime.timedelta = None) 
     else:
         expire = datetime.now(timezone.utc) + timedelta(minutes=60)
 
-    to_encode = {"exp": expire, "sub": str(subject)}
+    to_encode = {'exp': expire, 'sub': str(subject)}
     encoded_jwt = jwt.encode(
         to_encode,
         settings.JWT_SECRET,

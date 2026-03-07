@@ -7,6 +7,6 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str
 
     class Config:
-        env_file = ".env.example"
+        env_file = '.env.example'
 
 settings = Settings()

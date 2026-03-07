@@ -9,7 +9,7 @@ from src.db.models.user import User
 from src.db.session import SessionLocal
 from src.schemas.user import UserCreate, UserRead
 
-router = APIRouter(prefix="/auth", tags=["Auth"])
+router = APIRouter(prefix='/auth', tags=['Auth'])
 
 def get_db():
     db = SessionLocal()
@@ -18,7 +18,7 @@ def get_db():
     finally:
         db.close()
 
-@router.post("/register", response_model=UserRead, status_code=status.HTTP_201_CREATED)
+@router.post('/register', response_model=UserRead, status_code=status.HTTP_201_CREATED)
 def register(user_in: UserCreate, db: Session = Depends(get_db)):
     result = db.execute(select(User).where(User.username == user_in.username))
     if result.scalar_one_or_none():
