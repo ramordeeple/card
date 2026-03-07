@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from src.core.security import hash_password, verify_password, create_access_token
 from src.db.models.user import User
 from src.db.session import SessionLocal
+from src.domain.enums.user_role import UserRole
 from src.schemas.user import UserCreate, UserRead, Token
 
 router = APIRouter(prefix='/auth', tags=['Auth'])
@@ -30,7 +31,7 @@ def register(user_in: UserCreate, db: Session = Depends(get_db)):
     new_user = User(
         username=user_in.username,
         hashed_password=hash_password(user_in.password),
-        role=user_in.role
+        role=UserRole.USER,
     )
 
     db.add(new_user)
