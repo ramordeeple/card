@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str
     ADMIN:str
     ADMIN_PASSWORD: str
+    ACCESS_TOKEN_EXPIRE_MINUTES: int
 
     class Config:
         env_file = '.env.example'
