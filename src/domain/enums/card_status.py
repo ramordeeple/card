@@ -3,5 +3,5 @@ from enum import Enum
 
 class CardStatus(str, Enum):
     ACTIVE = 'ACTIVE'
-    INACTIVE = 'INACTIVE'
+    BLOCKED = 'BLOCKED'
     EXPIRED = 'EXPIRED'
