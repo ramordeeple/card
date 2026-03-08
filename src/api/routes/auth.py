@@ -4,7 +4,8 @@ from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from src.core.security import hash_password, verify_password, create_access_token
+from src.core.security.hashing import hash_password, verify_password
+from src.core.security.jwt import create_access_token
 from src.db.models.user import User
 from src.db.session import SessionLocal
 from src.domain.enums.user_role import UserRole
