@@ -11,7 +11,7 @@ def get_masked_card_number(card_number: str) -> str:
     mask_length = card.CARD_NUMBER_LENGTH - card.CARD_MASK_VISIBLE_END # first 12 masked digits
     masked_card_number = card.CARD_MASK_CHAR * mask_length
 
-    return f"{masked_card_number}{visible_part}"
+    return f'{masked_card_number}{visible_part}'
 
 CardNumberLength = Annotated[
     str,
