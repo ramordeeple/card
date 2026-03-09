@@ -3,7 +3,7 @@ from uuid import UUID
 
 from sqlalchemy.orm import Session
 
-from src.core.security.encrypt_card_number import encrypt_card_number, decrypt_card_number
+from src.core.security.crypto import encrypt_card_number, decrypt_card_number
 from src.db.models.card import Card
 from src.domain.rules import card_rules
 from src.schemas.card import CardCreate
@@ -17,7 +17,7 @@ class CardService:
         new_card = Card(
             owner_id=card_in.owner_id,
             number_encrypted=encrypted_bytes,
-            balance=Decimal(0.00)
+            balance=Decimal('0.00')
         )
 
         db.add(new_card)
