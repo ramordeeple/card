@@ -1,10 +1,19 @@
 import uuid
 from decimal import Decimal
+from typing import Annotated
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
-from src.domain.rules.card_rules import CardNumberLength
+from src.db.models import card
 
+CardNumberLength = Annotated[
+    str,
+    Field(
+        min_length=card.CARD_NUMBER_LENGTH,
+        max_length=card.CARD_NUMBER_LENGTH,
+        pattern=r"^\d+$"
+    )
+]
 
 class CardRead(BaseModel):
     id: uuid.UUID
