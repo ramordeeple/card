@@ -9,6 +9,7 @@ from sqlalchemy.testing.schema import mapped_column
 
 from src.db.models.card import Card
 from src.db.session import Base
+from src.domain.constants.user_constants import USERNAME_MAX_LENGTH, PASSWORD_HASH_MAX_LENGTH
 from src.domain.enums.user_role import UserRole
 
 if TYPE_CHECKING:
@@ -20,8 +21,8 @@ class User(Base):
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
-    username: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
-    hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
+    username: Mapped[str] = mapped_column(String(USERNAME_MAX_LENGTH), unique=True, nullable=False)
+    hashed_password: Mapped[str] = mapped_column(String(PASSWORD_HASH_MAX_LENGTH), nullable=False)
     role: Mapped[UserRole] = mapped_column(
         sqlalchemy_enum(UserRole),
         default=UserRole.USER,
