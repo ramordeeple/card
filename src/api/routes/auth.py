@@ -1,4 +1,4 @@
-from http.client import HTTPException
+import uuid
 
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy import select
@@ -30,6 +30,7 @@ def register(user_in: UserCreate, db: Session = Depends(get_db)):
         )
 
     new_user = User(
+        id=uuid.uuid4(),
         username=user_in.username,
         hashed_password=hash_password(user_in.password),
         role=UserRole.USER,
