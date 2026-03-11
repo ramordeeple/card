@@ -1,4 +1,4 @@
-from typing import List, TYPE_CHECKING
+from typing import List
 from datetime import datetime
 import uuid
 
@@ -11,9 +11,6 @@ from src.db.models.card import Card
 from src.db.session import Base
 from src.domain.constants.user_constants import USERNAME_MAX_LENGTH, PASSWORD_HASH_MAX_LENGTH
 from src.domain.enums.user_role import UserRole
-
-if TYPE_CHECKING:
-    from src.db.models.card import Card
 
 class User(Base):
     __tablename__ = 'users'
