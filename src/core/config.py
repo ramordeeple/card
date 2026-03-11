@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     ENCRYPTION_KEY: str
 
     model_config = SettingsConfigDict(
-        env_file='.env.example',
+        env_file='.env',
         extra='ignore'
     )
 
