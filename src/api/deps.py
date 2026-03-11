@@ -11,10 +11,11 @@ from src.db.models.user import User
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='auth/login')
 
 def get_current_user(db: Session = Depends(get_db),
-                     token: str = Depends(oauth2_scheme)):
+                     token: str = Depends(oauth2_scheme)) -> User:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail='Could not validate credentials',
+        headers={'WWW-Authenticate': 'Bearer'},
     )
 
     try:
