@@ -1,13 +1,14 @@
-from typing import List
+from typing import List, TYPE_CHECKING
 from datetime import datetime
 import uuid
 
 import sqlalchemy
 from sqlalchemy import String, UUID, Enum as sqlalchemy_enum, DateTime
-from sqlalchemy.orm import Mapped, relationship
-from sqlalchemy.testing.schema import mapped_column
+from sqlalchemy.orm import Mapped, relationship, mapped_column
 
-from src.db.models.card import Card
+if TYPE_CHECKING:
+    from src.db.models.card import Card
+
 from src.db.session import Base
 from src.domain.constants.user_constants import USERNAME_MAX_LENGTH, PASSWORD_HASH_MAX_LENGTH
 from src.domain.enums.user_role import UserRole
