@@ -7,11 +7,11 @@ from src.db.models.card import Card
 
 
 async def get_cards_by_ids(db: AsyncSession, card_ids: list[uuid.UUID], owner_id: uuid.UUID):
-    result = await db.execute(
-        select(Card).where(
-            Card.id.in_(card_ids),
-            Card.owner_id == owner_id
-        )
+    stmt = (
+        select(Card)
+        .where(Card.id.in_(card_ids), Card.owner_id == owner_id)
+        .with_for_update()
     )
+    result = await db.execute(stmt)
 
     return result.scalars().all()
