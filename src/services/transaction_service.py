@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from fastapi import HTTPException, status
 
-from src.crud.card import get_cards
+
 from src.db.models.card import Card
 from src.domain.rules import card_rules
 
@@ -14,6 +14,7 @@ from src.domain.rules import card_rules
 class TransactionService:
     @staticmethod
     async def transfer_money(db: AsyncSession, from_id: UUID, to_id: UUID, amount: Decimal, owner_id: UUID):
+        from src.api.routes.cards import get_cards
         card_rules.validate_transaction_amount(amount)
 
         ids = sorted([from_id, to_id])
