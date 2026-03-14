@@ -7,22 +7,15 @@ from sqlalchemy.orm import Session
 from src.core.security.hashing import hash_password, verify_password
 from src.core.security.jwt import create_access_token
 from src.db.models.user import User
-from src.db.session import SessionLocal
+from src.db.session import get_db
 from src.domain.enums.user_role import UserRole
 from src.schemas.user import UserCreate, UserRead, Token
 
 router = APIRouter(prefix='/auth', tags=['Auth'])
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
 @router.post('/register', response_model=UserRead, status_code=status.HTTP_201_CREATED)
-def register(user_in: UserCreate, db: Session = Depends(get_db)):
-    result = db.execute(select(User).where(User.username == user_in.username))
+async def register(user_in: UserCreate, db: Session = Depends(get_db)):
+    result = await db.execute(select(User).where(User.username == user_in.username))
     if result.scalar_one_or_none():
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -37,14 +30,14 @@ def register(user_in: UserCreate, db: Session = Depends(get_db)):
     )
 
     db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
+    await db.commit()
+    await db.refresh(new_user)
 
     return new_user
 
 @router.post('/login', response_model=Token)
-def login(user_in: UserCreate, db: Session = Depends(get_db)):
-    result = db.execute(select(User).where(User.username == user_in.username))
+async def login(user_in: UserCreate, db: Session = Depends(get_db)):
+    result = await db.execute(select(User).where(User.username == user_in.username))
     user = result.scalar_one_or_none()
 
     if not user or not verify_password(user_in.password, user.hashed_password):
