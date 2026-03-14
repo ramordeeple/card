@@ -5,8 +5,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from fastapi import HTTPException, status
-from sqlalchemy.sql import crud
 
+from src.crud.card import get_cards
 from src.db.models.card import Card
 from src.domain.rules import card_rules
 
@@ -17,7 +17,7 @@ class TransactionService:
         card_rules.validate_transaction_amount(amount)
 
         ids = sorted([from_id, to_id])
-        cards = await crud.get_cards(db, ids, owner_id)
+        cards = await get_cards(db, ids, owner_id)
 
         if len(cards) < 2:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Cards not found')
