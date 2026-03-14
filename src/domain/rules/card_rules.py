@@ -17,11 +17,11 @@ def check_card_existence(card: Card | None):
             detail='Card not found'
         )
 
-def check_card_is_active(card: Card):
-    if card.status == CardStatus.ACTIVE:
+def check_card_is_active(card: Card, card_name: str = 'Card'):
+    if card.status != CardStatus.ACTIVE:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail='Card is already active'
+            detail=f'{card_name} is not active'
         )
 
 def check_card_is_blocked(card: Card):
