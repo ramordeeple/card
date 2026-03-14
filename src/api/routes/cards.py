@@ -70,15 +70,17 @@ async def get_my_cards(
     return cards
 
 
-@router.post("/transfer")
+@router.post('/transfer', response_model=CardRead)
 async def transfer_between_cards(
     payload: TransferRequest,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return await TransactionService.transfer_money(
+    card_obj = await TransactionService.transfer_money(
         db, payload.from_id, payload.to_id, payload.amount, current_user.id
     )
+
+    return CardRead.model_validate(card_obj)
 
 
 @router.post("/{card_id}/deposit", response_model=CardRead)
