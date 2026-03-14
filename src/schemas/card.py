@@ -34,7 +34,10 @@ class CardRead(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+class TransferRequest(BaseModel):
+    from_id: uuid.UUID
+    to_id: uuid.UUID
+    amount: Decimal
 
-class CardCreate(BaseModel):
-    owner_id: uuid.UUID
-    number: CardNumberLength
+class CardDeposit(BaseModel):
+    amount: Decimal = Field(gt=0, decimal_places=2, description='Amount to deposit')
