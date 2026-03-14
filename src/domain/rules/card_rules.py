@@ -18,15 +18,15 @@ def check_card_existence(card: Card | None):
         )
 
 def check_card_is_active(card: Card):
+    if card.status == CardStatus.ACTIVE:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail='Card is already active'
+        )
+
+def check_card_is_blocked(card: Card):
     if card.status == CardStatus.BLOCKED:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='Card is already blocked'
-        )
-
-def check_card_is_blocked(card: Card):
-    if card.status != CardStatus.BLOCKED:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail='Card is not blocked'
         )
