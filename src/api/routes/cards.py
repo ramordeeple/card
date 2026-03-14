@@ -1,18 +1,24 @@
 import uuid
 from datetime import timedelta, datetime
 from decimal import Decimal
+from typing import List
 
 from fastapi import APIRouter, status
 from fastapi.params import Depends
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api import deps
+from src.api.deps import get_current_user
 from src.core.security.crypto import encrypt_card_number
 from src.core.util.card_number_generator import generate_rand_card_number
 from src.db.models.card import Card
 from src.db.models.user import User
 from src.db.session import get_db
-from src.domain.constants.card_constants import CARD_VALIDITY_YEARS, CARD_MASK_VISIBLE_END
+from src.domain.constants.card_constants import (
+    CARD_VALIDITY_YEARS,
+    CARD_MASK_VISIBLE_END,
+)
 from src.domain.enums.card_status import CardStatus
 from src.schemas.card import CardRead
 
@@ -44,3 +50,21 @@ async def issue_card(
     await db.refresh(new_card)
 
     return new_card
+
+
+@router.get("/", response_model=List[CardRead])
+async def get_my_cards(
+    limit: int = 5,
+    offset: int = 0,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    query = (select(Card)
+             .where(Card.owner_id == current_user.id)
+             .limit(limit)
+             .offset(offset))
+
+    result = await db.execute(query)
+    cards = result.scalars().all()
+
+    return cards
