@@ -21,6 +21,7 @@ from src.domain.constants.card_constants import (
 )
 from src.domain.enums.card_status import CardStatus
 from src.schemas.card import CardRead, CardDeposit, TransferRequest
+from src.services.card_service import CardService
 from src.services.transaction_service import TransactionService
 
 router = APIRouter(prefix="/cards", tags=["Cards"])
@@ -54,7 +55,7 @@ async def issue_card(
 
 
 @router.get("/", response_model=List[CardRead])
-async def get_my_cards(
+async def get_cards(
     limit: int = 5,
     offset: int = 0,
     db: AsyncSession = Depends(get_db),
@@ -93,3 +94,23 @@ async def deposit_to_card(
     return await TransactionService.deposit(
         db=db, card_id=card_id, amount=payload.amount, owner_id=current_user.id
     )
+
+@router.patch('/{card_id}/block', response_model=CardRead)
+async def block_card(
+        card_id: uuid.UUID,
+        db: AsyncSession = Depends(get_db),
+        current_user: User = Depends(get_current_user),
+):
+    card = await CardService.block_card(db, card_id, current_user.id)
+
+    return card
+
+@router.patch('/{card_id}/unblock', response_model=CardRead)
+async def unblock_card(
+        card_id: uuid.UUID,
+        db: AsyncSession = Depends(get_db),
+        current_user: User = Depends(get_current_user),
+):
+    card = await CardService.unblock_card(db, card_id, current_user.id)
+
+    return card
