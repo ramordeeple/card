@@ -20,7 +20,8 @@ from src.domain.constants.card_constants import (
     CARD_MASK_VISIBLE_END,
 )
 from src.domain.enums.card_status import CardStatus
-from src.schemas.card import CardRead
+from src.schemas.card import CardRead, CardDeposit, TransferRequest
+from src.services.transaction_service import TransactionService
 
 router = APIRouter(prefix="/cards", tags=["Cards"])
 
@@ -59,12 +60,34 @@ async def get_my_cards(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    query = (select(Card)
-             .where(Card.owner_id == current_user.id)
-             .limit(limit)
-             .offset(offset))
+    query = (
+        select(Card).where(Card.owner_id == current_user.id).limit(limit).offset(offset)
+    )
 
     result = await db.execute(query)
     cards = result.scalars().all()
 
     return cards
+
+
+@router.post("/transfer")
+async def transfer_between_cards(
+    payload: TransferRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    return await TransactionService.transfer_money(
+        db, payload.from_id, payload.to_id, payload.amount, current_user.id
+    )
+
+
+@router.post("/{card_id}/deposit", response_model=CardRead)
+async def deposit_to_card(
+    card_id: uuid.UUID,
+    payload: CardDeposit,
+    db: AsyncSession = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    return await TransactionService.deposit(
+        db=db, card_id=card_id, amount=payload.amount, owner_id=current_user.id
+    )
