@@ -3,12 +3,10 @@ from datetime import timedelta, datetime
 from decimal import Decimal
 from typing import List
 
-from fastapi import APIRouter, status
-from fastapi.params import Depends
+from fastapi import APIRouter, status, Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api import deps
 from src.api.deps import get_current_user
 from src.core.security.crypto import encrypt_card_number
 from src.core.util.card_number_generator import generate_rand_card_number
@@ -30,7 +28,7 @@ router = APIRouter(prefix="/cards", tags=["Cards"])
 @router.post("/issue", response_model=CardRead, status_code=status.HTTP_201_CREATED)
 async def issue_card(
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(deps.get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
     generated_number = generate_rand_card_number()
     encrypted_bytes = encrypt_card_number(generated_number)
@@ -59,10 +57,10 @@ async def get_cards(
     limit: int = 5,
     offset: int = 0,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    user_instance: User = Depends(get_current_user),
 ):
     query = (
-        select(Card).where(Card.owner_id == current_user.id).limit(limit).offset(offset)
+        select(Card).where(Card.owner_id == user_instance.id).limit(limit).offset(offset)
     )
 
     result = await db.execute(query)
@@ -78,7 +76,7 @@ async def transfer_between_cards(
     current_user: User = Depends(get_current_user),
 ):
     card_obj = await TransactionService.transfer_money(
-        db, payload.from_id, payload.to_id, payload.amount, current_user.id
+        db, payload.from_id, payload.to_id, payload.amount, owner_id=current_user.id
     )
 
     return CardRead.model_validate(card_obj)
