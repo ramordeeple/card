@@ -25,6 +25,7 @@ class CardService:
 
         return card
 
+    @staticmethod
     async def unblock_card(db: AsyncSession, card_id: UUID, owner_id: UUID):
         query = select(Card).where(Card.id == card_id, Card.owner_id == owner_id)
         result = await db.execute(query)
