@@ -18,6 +18,7 @@ from src.domain.constants.card_constants import (
     CARD_MASK_VISIBLE_END,
 )
 from src.domain.enums.card_status import CardStatus
+from src.domain.rules import card_rules
 from src.schemas.card import CardRead, CardDeposit, TransferRequest
 from src.services.card_service import CardService
 from src.services.transaction_service import TransactionService
@@ -119,3 +120,17 @@ async def unblock_card(
 
     return card
 
+@router.get('/{card_id}/balance')
+async def get_card_balance(
+    card_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    card = await db.get(Card, card_id)
+
+    card_rules.check_card_access(card, current_user.id)
+
+    return {
+        'card_id': card.id,
+        'balance': card.balance,
+    }
