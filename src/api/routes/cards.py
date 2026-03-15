@@ -17,7 +17,6 @@ from src.services.transaction_service import TransactionService
 
 router = APIRouter(prefix='/cards', tags=['Cards'])
 
-
 @router.post('/issue', response_model=CardRead, status_code=status.HTTP_201_CREATED)
 async def issue_card(
     db: AsyncSession = Depends(get_db),
@@ -25,27 +24,15 @@ async def issue_card(
 ):
     return await CardService.issue_card(db, current_user.id)
 
-
 @router.get('/', response_model=List[CardRead])
 async def get_cards(
     search: Optional[str] = Query(None),
     limit: int = 5,
     offset: int = 0,
     db: AsyncSession = Depends(get_db),
-    user_instance: User = Depends(get_current_user),
+    user: User = Depends(get_current_user),
 ):
-    query = select(Card).where(Card.owner_id == user_instance.id)
-
-    if search:
-        query = query.where(Card.number_contains(search))
-
-    query = query.limit(limit).offset(offset)
-
-    result = await db.execute(query)
-    cards = result.scalars().all()
-
-    return cards
-
+    return await CardService.get_cards(db, owner_id=user.id, search=search, limit=limit, offset=offset)
 
 @router.post('/transfer', response_model=CardRead)
 async def transfer_between_cards(
@@ -59,7 +46,6 @@ async def transfer_between_cards(
 
     return CardRead.model_validate(card_obj)
 
-
 @router.post('/{card_id}/deposit', response_model=CardRead)
 async def deposit_to_card(
     card_id: uuid.UUID,
@@ -71,7 +57,6 @@ async def deposit_to_card(
         db=db, card_id=card_id, amount=payload.amount, owner_id=current_user.id
     )
 
-
 @router.patch('/{card_id}/block', response_model=CardRead)
 async def block_card(
     card_id: uuid.UUID,
@@ -81,7 +66,6 @@ async def block_card(
     card = await CardService.block_card(db, card_id, current_user.id)
 
     return card
-
 
 @router.patch('/{card_id}/unblock', response_model=CardRead)
 async def unblock_card(
