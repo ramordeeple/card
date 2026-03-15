@@ -1,9 +1,9 @@
 import uuid
 from datetime import timedelta, datetime
 from decimal import Decimal
-from typing import List
+from typing import List, Optional
 
-from fastapi import APIRouter, status, Depends
+from fastapi import APIRouter, status, Depends, Query
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -22,10 +22,10 @@ from src.schemas.card import CardRead, CardDeposit, TransferRequest
 from src.services.card_service import CardService
 from src.services.transaction_service import TransactionService
 
-router = APIRouter(prefix="/cards", tags=["Cards"])
+router = APIRouter(prefix='/cards', tags=['Cards'])
 
 
-@router.post("/issue", response_model=CardRead, status_code=status.HTTP_201_CREATED)
+@router.post('/issue', response_model=CardRead, status_code=status.HTTP_201_CREATED)
 async def issue_card(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -42,7 +42,7 @@ async def issue_card(
             datetime.now() + timedelta(days=365 * CARD_VALIDITY_YEARS)
         ).date(),
         status=CardStatus.ACTIVE,
-        balance=Decimal("0.00"),
+        balance=Decimal('0.00'),
     )
 
     db.add(new_card)
@@ -52,16 +52,20 @@ async def issue_card(
     return new_card
 
 
-@router.get("/", response_model=List[CardRead])
+@router.get('/', response_model=List[CardRead])
 async def get_cards(
+    search: Optional[str] = Query(None),
     limit: int = 5,
     offset: int = 0,
     db: AsyncSession = Depends(get_db),
     user_instance: User = Depends(get_current_user),
 ):
-    query = (
-        select(Card).where(Card.owner_id == user_instance.id).limit(limit).offset(offset)
-    )
+    query = select(Card).where(Card.owner_id == user_instance.id)
+
+    if search:
+        query = query.where(Card.number_contains(search))
+
+    query = query.limit(limit).offset(offset)
 
     result = await db.execute(query)
     cards = result.scalars().all()
@@ -82,7 +86,7 @@ async def transfer_between_cards(
     return CardRead.model_validate(card_obj)
 
 
-@router.post("/{card_id}/deposit", response_model=CardRead)
+@router.post('/{card_id}/deposit', response_model=CardRead)
 async def deposit_to_card(
     card_id: uuid.UUID,
     payload: CardDeposit,
@@ -93,22 +97,25 @@ async def deposit_to_card(
         db=db, card_id=card_id, amount=payload.amount, owner_id=current_user.id
     )
 
+
 @router.patch('/{card_id}/block', response_model=CardRead)
 async def block_card(
-        card_id: uuid.UUID,
-        db: AsyncSession = Depends(get_db),
-        current_user: User = Depends(get_current_user),
+    card_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     card = await CardService.block_card(db, card_id, current_user.id)
 
     return card
 
+
 @router.patch('/{card_id}/unblock', response_model=CardRead)
 async def unblock_card(
-        card_id: uuid.UUID,
-        db: AsyncSession = Depends(get_db),
-        current_user: User = Depends(get_current_user),
+    card_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     card = await CardService.unblock_card(db, card_id, current_user.id)
 
     return card
+
