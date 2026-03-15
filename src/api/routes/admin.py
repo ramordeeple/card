@@ -10,6 +10,7 @@ from src.db.models.user import User
 from src.db.session import get_db
 from src.domain.enums.card_status import CardStatus
 from src.domain.rules import card_rules
+from src.services.card_service import CardService
 
 router = APIRouter(prefix='/admin', tags=['Admin Operations'])
 
@@ -96,3 +97,10 @@ async def admin_block_card(
         'message': f'Card {card_id} unblocked successfully',
         'status': card.status
     }
+
+@router.post("/users/{user_id}/cards", status_code=201)
+async def admin_create_card(
+    user_id: UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    return await CardService.issue_card(db, owner_id=user_id)
