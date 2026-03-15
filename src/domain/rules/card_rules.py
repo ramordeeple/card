@@ -1,4 +1,5 @@
 from decimal import Decimal
+from uuid import UUID
 
 from fastapi import HTTPException, status
 
@@ -29,4 +30,11 @@ def check_card_is_blocked(card: Card):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='Card is already blocked'
+        )
+
+def check_card_access(card: Card | None, user_id: UUID):
+    if not card or card.owner_id != user_id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Card not found'
         )
