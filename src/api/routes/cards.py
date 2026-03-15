@@ -11,7 +11,7 @@ from src.db.models.user import User
 from src.db.session import get_db
 
 from src.domain.rules import card_rules
-from src.schemas.card import CardRead, CardDeposit, TransferRequest
+from src.schemas.card import CardRead, CardDeposit, TransferRequest, CardListResponse
 from src.services.card_service import CardService
 from src.services.transaction_service import TransactionService
 
@@ -24,7 +24,7 @@ async def issue_card(
 ):
     return await CardService.issue_card(db, current_user.id)
 
-@router.get('/', response_model=List[CardRead])
+@router.get('/', response_model=CardListResponse)
 async def get_cards(
     search: Optional[str] = Query(None),
     limit: int = 5,
