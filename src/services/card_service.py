@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.security.crypto import encrypt_card_number
@@ -72,3 +72,32 @@ class CardService:
         await db.refresh(new_card)
 
         return new_card
+
+    @staticmethod
+    async def get_cards(
+        db: AsyncSession,
+        owner_id: uuid.UUID | None = None,
+        search: str | None = None,
+        limit: int = 10,
+        offset: int = 0,
+    ):
+        query = select(Card)
+
+        if owner_id:
+            query = query.where(Card.owner_id == owner_id)
+
+        if search:
+            query = query.where(Card.number_last4.contains(search))
+
+        count_query = select(func.count()).select_from(query.subquery())
+        total = await db.scalar(count_query)
+
+        result = await db.execute(query.limit(limit).offset(offset))
+        cards = result.scalars().all()
+
+        return {
+            'items': cards,
+            'total': total or 0,
+            'limit': limit,
+            'offset': offset,
+        }
