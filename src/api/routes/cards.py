@@ -1,6 +1,4 @@
 import uuid
-from datetime import timedelta, datetime
-from decimal import Decimal
 from typing import List, Optional
 
 from fastapi import APIRouter, status, Depends, Query
@@ -8,16 +6,10 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.deps import get_current_user
-from src.core.security.crypto import encrypt_card_number
-from src.core.util.card_number_generator import generate_rand_card_number
 from src.db.models.card import Card
 from src.db.models.user import User
 from src.db.session import get_db
-from src.domain.constants.card_constants import (
-    CARD_VALIDITY_YEARS,
-    CARD_MASK_VISIBLE_END,
-)
-from src.domain.enums.card_status import CardStatus
+
 from src.domain.rules import card_rules
 from src.schemas.card import CardRead, CardDeposit, TransferRequest
 from src.services.card_service import CardService
@@ -31,26 +23,7 @@ async def issue_card(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    generated_number = generate_rand_card_number()
-    encrypted_bytes = encrypt_card_number(generated_number)
-
-    new_card = Card(
-        id=uuid.uuid4(),
-        number_encrypted=encrypted_bytes,
-        number_last4=generated_number[-CARD_MASK_VISIBLE_END:],
-        owner_id=current_user.id,
-        expiration_date=(
-            datetime.now() + timedelta(days=365 * CARD_VALIDITY_YEARS)
-        ).date(),
-        status=CardStatus.ACTIVE,
-        balance=Decimal('0.00'),
-    )
-
-    db.add(new_card)
-    await db.commit()
-    await db.refresh(new_card)
-
-    return new_card
+    return await CardService.issue_card(db, current_user.id)
 
 
 @router.get('/', response_model=List[CardRead])

@@ -1,9 +1,18 @@
+import uuid
+from datetime import datetime, timedelta
+from decimal import Decimal
 from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.core.security.crypto import encrypt_card_number
+from src.core.util.card_number_generator import generate_rand_card_number
 from src.db.models.card import Card
+from src.domain.constants.card_constants import (
+    CARD_MASK_VISIBLE_END,
+    CARD_VALIDITY_YEARS,
+)
 from src.domain.enums.card_status import CardStatus
 from src.domain.rules import card_rules
 
@@ -40,3 +49,26 @@ class CardService:
         await db.refresh(card)
 
         return card
+
+    @staticmethod
+    async def issue_card(db: AsyncSession, owner_id: uuid.UUID):
+        generated_number = generate_rand_card_number()
+        encrypted_bytes = encrypt_card_number(generated_number)
+
+        new_card = Card(
+            id=uuid.uuid4(),
+            number_encrypted=encrypted_bytes,
+            number_last4=generated_number[-CARD_MASK_VISIBLE_END:],
+            owner_id=owner_id,
+            expiration_date=(
+                datetime.now() + timedelta(days=365 * CARD_VALIDITY_YEARS)
+            ).date(),
+            status=CardStatus.ACTIVE,
+            balance=Decimal("0.00"),
+        )
+
+        db.add(new_card)
+        await db.commit()
+        await db.refresh(new_card)
+
+        return new_card
