@@ -5,7 +5,6 @@ from sqlalchemy import select
 
 from src.core.config import settings
 from src.core.security.hashing import hash_password
-from src.db.models.card import Card
 from src.db.models.user import User
 from src.db.session import SessionLocal
 from src.domain.enums.user_role import UserRole

@@ -1,8 +1,7 @@
 import uuid
-from typing import List, Optional
+from typing import Optional
 
 from fastapi import APIRouter, status, Depends, Query
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.deps import get_current_user
