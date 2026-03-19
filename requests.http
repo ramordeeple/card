@@ -1,0 +1,88 @@
+### ==========================================
+### 1. АДМИНИСТРАТОР (логин и пароль берутся из .env)
+### ==========================================
+@admin = <ADMIN_TOKEN>
+POST http://localhost:8000/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "superadmin"
+}
+
+> {% client.global.set("admin_token", response.body.access_token); %}
+
+### Список всех карт (пагинация)
+GET http://localhost:8000/admin/cards?limit=10&offset=0
+Authorization: Bearer {{admin_token}}
+Content-Type: application/json
+
+### Выпустить карту конкретному пользователю
+POST http://localhost:8000/admin/users/1/cards
+Authorization: Bearer {{admin_token}}
+Content-Type: application/json
+
+### Активировать карту
+PATCH http://localhost:8000/admin/cards/card_uuid_here/activate
+Authorization: Bearer {{admin_token}}
+Content-Type: application/json
+
+### Удалить карту
+DELETE http://localhost:8000/admin/cards/card_uuid_here
+Authorization: Bearer {{admin_token}}
+Content-Type: application/json
+
+
+### ==========================================
+### 2. ПОЛЬЗОВАТЕЛЬ
+### ==========================================
+
+@user = <USER_JWT_TOKEN>
+POST http://localhost:8000/auth/register
+Content-Type: application/json
+
+{
+  "username": "user",
+  "password": "userpassword"
+}
+
+###
+POST http://localhost:8000/auth/login
+Content-Type: application/json
+
+{
+  "username": "user",
+  "password": "11111111"
+}
+
+> {% client.global.set("user_token", response.body.access_token); %}
+
+### Выпустить себе новую карту
+POST http://localhost:8000/cards/issue
+Authorization: Bearer {{user}}
+Content-Type: application/json
+
+### Список моих карт и балансов
+GET http://localhost:8000/cards/
+Authorization: Bearer {{user}}
+Content-Type: application/json
+
+### Перевод между своими картами
+POST http://localhost:8000/cards/transfer
+Authorization: Bearer {{user_token}}
+Content-Type: application/json
+
+{
+  "from_id": "",
+  "to_id": "",
+  "amount": 120.07
+}
+
+### Пополнить карту
+POST http://localhost:8000/cards/<card_uuid>/deposit
+Authorization: Bearer {{user_token}}
+Content-Type: application/json
+
+{
+  "amount": 500.50
+}
