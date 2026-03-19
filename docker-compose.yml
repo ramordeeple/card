@@ -37,8 +37,10 @@ services:
       db:
         condition: service_healthy
     command: >
-      sh -c "alembic upgrade head && 
-                   uvicorn src.main:app --host 0.0.0.0 --port 8000"
+      sh -c "export PYTHONPATH=$PYTHONPATH:/app &&
+      alembic revision --autogenerate -m 'auto_migration' || echo 'No changes detected' &&
+      alembic upgrade head &&
+      uvicorn src.main:app --host 0.0.0.0 --port 8000"
 
 
 volumes:
