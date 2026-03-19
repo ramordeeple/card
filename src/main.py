@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, status
 from starlette.responses import JSONResponse
 
-from src.api.routes import auth, transactions, cards, admin
+from src.api.routes import auth, cards, admin
 from src.core.setup_admin import create_admin
 
 @asynccontextmanager
@@ -12,7 +12,6 @@ async def lifespan(app: FastAPI):
     yield
 app = FastAPI(lifespan=lifespan)
 app.include_router(auth.router)
-app.include_router(transactions.router)
 app.include_router(cards.router)
 app.include_router(admin.router)
 
