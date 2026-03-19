@@ -5,7 +5,7 @@ from jose import jwt
 from src.core.config import settings
 
 
-def create_access_token(subject: str, expires_delta: datetime.timedelta = None) -> str:
+def create_access_token(subject: str, expires_delta: timedelta = None) -> str:
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
     else:
