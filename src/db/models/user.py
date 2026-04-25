@@ -1,4 +1,4 @@
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 from datetime import datetime
 import uuid
 
@@ -32,7 +32,7 @@ class User(Base):
         server_default=sqlalchemy.func.now()
     )
 
-    cards: Mapped[List['Card']] = relationship('Card', back_populates='owner')
+    cards: Mapped[list['Card']] = relationship('Card', back_populates='owner')
 
 
 

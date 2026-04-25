@@ -1,7 +1,6 @@
-import logging
 import uuid
 from decimal import Decimal
-from typing import Annotated, List
+from typing import Annotated
 
 from pydantic import BaseModel, ConfigDict, Field, computed_field
 
@@ -42,8 +41,8 @@ class TransferRequest(BaseModel):
 class CardDeposit(BaseModel):
     amount: Decimal = Field(gt=0, decimal_places=2, description='Amount to deposit')
 
-class CardListResponse(BaseModel):
-    items: List[CardRead]
+class CardlistResponse(BaseModel):
+    items: list[CardRead]
     total: int
     limit: int
     offset: int
